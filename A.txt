@@ -1,0 +1,52 @@
+A*
+import heapq
+
+def astar(start, goal, h_func, neighbors_func):
+    """A* search algorithm."""
+    heap = [(0, start)]
+    came_from = {start: None}
+    cost_so_far = {start: 0}
+
+    while heap:
+        _, current = heapq.heappop(heap)
+
+        if current == goal:
+            path = [current]
+            while current != start:
+                current = came_from[current]
+                path.append(current)
+            path.reverse()
+            return path
+
+        for neighbor in neighbors_func(current):
+            new_cost = cost_so_far[current] + 1  # Assumes cost between neighbors is 1
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                cost_so_far[neighbor] = new_cost
+                priority = new_cost + h_func(neighbor, goal)
+                heapq.heappush(heap, (priority, neighbor))
+                came_from[neighbor] = current
+
+    return None  # If no path is found
+
+# Heuristic function: Euclidean distance
+def euclidean_dist(a, b):
+    return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+# Neighboring nodes (4-directional)
+def grid_neighbors(node):
+    x, y = node
+    return [(x - 1, y), (x, y - 1), (x + 1, y), (x, y + 1)]
+
+# Example grid and usage
+grid = [
+    [0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0]
+]
+
+# You may add logic to check if neighbor is within bounds and not blocked (i.e., value != 1)
+
+# Example usage:
+# start = (0, 0)
+# goal = (1, 4)
+# path = astar(start, goal, euclidean_dist, grid_neighbors)
+# print("Path:", path)
